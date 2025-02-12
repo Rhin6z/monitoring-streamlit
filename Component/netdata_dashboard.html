@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="http://10.10.10.1:19999/dashboard.js"></script>
+    <script>
+    var netdataTheme = 'slate';
+    var netdataPrepCallback = function() {
+        NETDATA.requiredCSS = [];
+    };
+    </script>
+    <style>
+        body {
+            background: transparent !important;
+        }
+        .wrap {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        h3 {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .charts {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: space-around;
+        }
+        .charts > div {
+            margin-bottom: 6rem;
+            position: relative;
+        }
+        .netdata-chart-row * { color: #ffffff !important; }
+    </style>
+</head>
+<body>
+    <div class="netdata-chart-row">
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 9%;" data-netdata="system.swap" data-dimensions="used" data-append-options="percentage" data-chart-library="easypiechart" data-title="Used Swap" data-units="%" data-easypiechart-max-value="100" data-width="9%" data-points="300" data-colors="#DD4400"></div>
+
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="in" data-chart-library="easypiechart" data-title="Disk Read" data-width="11%" data-points="300" data-common-units="system.io.mainhead"></div>
+
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="out" data-chart-library="easypiechart" data-title="Disk Write" data-width="11%" data-points="300" data-common-units="system.io.mainhead"></div>
+
+        <div class="netdata-container-gauge" style="margin-right: 10px; width: 20%;" data-netdata="system.cpu" data-chart-library="gauge" data-title="CPU" data-units="%" data-gauge-max-value="100" data-width="20%" data-points="300" data-colors="#22AA99"></div>
+
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="received" data-chart-library="easypiechart" data-title="Net Inbound" data-width="11%" data-points="300" data-common-units="system.net.mainhead"></div>
+
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="sent" data-chart-library="easypiechart" data-title="Net Outbound" data-width="11%" data-points="300" data-common-units="system.net.mainhead"></div>
+
+        <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 9%;" data-netdata="system.ram" data-dimensions="used|buffers|active|wired" data-append-options="percentage" data-chart-library="easypiechart" data-title="Used RAM" data-units="%" data-easypiechart-max-value="100" data-width="9%" data-points="300" data-colors="#EE9911"></div>
+    </div>
+</body>
+</html>
