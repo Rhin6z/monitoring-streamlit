@@ -5,6 +5,9 @@ from Component.netdata_utils import (
     configure_netdata, restart_netdata, uninstall_netdata, remove_netdata_source
 )
 
+# Import komponen terminal
+from terminal_component import create_terminal_component
+
 def auto_install_and_configure(ip, username, password):
     log_messages = ""
     use_sudo = username.lower() != "root"
@@ -58,7 +61,9 @@ def auto_install_and_configure(ip, username, password):
 
     # ✅ Simpan ke session state biar monitoring bisa jalan
     st.session_state.netdata_ready = True
-    st.session_state.remote_ip = ip  
+    st.session_state.remote_ip = ip
+    st.session_state.username = username  # Simpan username untuk terminal
+    st.session_state.password = password  # Simpan password untuk terminal
 
     ssh.close()
     return log_messages
@@ -67,9 +72,7 @@ def auto_install_and_configure(ip, username, password):
 st.set_page_config(page_title="Remote Netdata Dashboard", layout="wide")
 st.title("Remote Netdata Management")
 
-tabs = st.tabs(["Auto Install & Configure", "Monitoring"])
-
-with tabs[0]:
+with st.sidebar:
     st.header("Auto Install & Configure Netdata")
     remote_ip = st.text_input("Remote Server IP")
     username = st.text_input("Username", "root")
@@ -77,73 +80,24 @@ with tabs[0]:
 
     if st.button("Start Monitoring"):
         log_output = auto_install_and_configure(remote_ip, username, password)
-        st.subheader("📜 Log Output:")
-        st.code(log_output, language="bash")
+        with st.expander("Log Output"):
+            st.code(log_output, language="bash")
 
-with tabs[1]:
+# Buat tabs untuk dashboard dan terminal
+tab1, tab2 = st.tabs(["📊 Monitoring Dashboard", "💻 Terminal"])
+
+with tab1:
     st.header("📊 Monitoring Dashboard")
-
+    
     if "netdata_ready" not in st.session_state or not st.session_state.netdata_ready:
-        st.warning("Masukkan IP, Username, dan Password di tab pertama!")
+        st.warning("Masukkan IP, Username, dan Password di side bar!")
     else:
-        netdata_ip = st.session_state.remote_ip
-        st.success(f"✅ Monitoring Netdata aktif di `{netdata_ip}`")
+        netdata_ip = st.session_state['remote_ip']
+        st.success(f"✅ Monitoring Netdata active at `{netdata_ip}`")
 
-        # 🔥 Buat HTML secara langsung dengan IP user
-        html_code = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <script type="text/javascript" src="http://{netdata_ip}:19999/dashboard.js"></script>
-            <script>
-            var netdataTheme = 'slate';
-            var netdataPrepCallback = function() {{
-                NETDATA.requiredCSS = [];
-            }};
-            </script>
-            <style>
-                body {{
-                    background: transparent !important;
-                }}
-                .wrap {{
-                    max-width: 1280px;
-                    margin: 0 auto;
-                }}
-                h3 {{
-                    margin-bottom: 30px;
-                    text-align: center;
-                }}
-                .charts {{
-                    display: flex;
-                    flex-flow: row wrap;
-                    justify-content: space-around;
-                }}
-                .charts > div {{
-                    margin-bottom: 6rem;
-                    position: relative;
-                }}
-                .netdata-chart-row * {{ color: #ffffff !important; }}
-            </style>
-        </head>
-        <body>
-            <div class="netdata-chart-row">
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 9%;" data-netdata="system.swap" data-dimensions="used" data-append-options="percentage" data-chart-library="easypiechart" data-title="Used Swap" data-units="%" data-easypiechart-max-value="100" data-width="9%" data-points="300" data-colors="#DD4400"></div>
+        html_code = f'<iframe src="http://{netdata_ip}:19999" width="100%" height="1000"></iframe>'
+        st.components.v1.html(html_code, height=1000, scrolling=False)
 
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="in" data-chart-library="easypiechart" data-title="Disk Read" data-width="11%" data-points="300" data-common-units="system.io.mainhead"></div>
-
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.io" data-dimensions="out" data-chart-library="easypiechart" data-title="Disk Write" data-width="11%" data-points="300" data-common-units="system.io.mainhead"></div>
-
-                <div class="netdata-container-gauge" style="margin-right: 10px; width: 20%;" data-netdata="system.cpu" data-chart-library="gauge" data-title="CPU" data-units="%" data-gauge-max-value="100" data-width="20%" data-points="300" data-colors="#22AA99"></div>
-
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="received" data-chart-library="easypiechart" data-title="Net Inbound" data-width="11%" data-points="300" data-common-units="system.net.mainhead"></div>
-
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 11%;" data-netdata="system.net" data-dimensions="sent" data-chart-library="easypiechart" data-title="Net Outbound" data-width="11%" data-points="300" data-common-units="system.net.mainhead"></div>
-
-                <div class="netdata-container-easypiechart" style="margin-right: 10px; width: 9%;" data-netdata="system.ram" data-dimensions="used|buffers|active|wired" data-append-options="percentage" data-chart-library="easypiechart" data-title="Used RAM" data-units="%" data-easypiechart-max-value="100" data-width="9%" data-points="300" data-colors="#EE9911"></div>
-            </div>
-        </body>
-        </html>
-        """
-
-        # 🚀 Render HTML di Streamlit
-        st.components.v1.html(html_code, height=700, scrolling=False)
+with tab2:
+    # Tampilkan komponen terminal
+    create_terminal_component()

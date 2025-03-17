@@ -4,9 +4,8 @@ import time
 from .ssh_utils import remote_exec
 
 def fetch_netdata(ip):
-    """Cek apakah Netdata berjalan dengan API `/api/v1/info`."""
     try:
-        url = f"http://{ip}:19999/api/v1/info"
+        url = f"http://{ip}:19999"
         response = requests.get(url, timeout=5)
         return response.status_code == 200
     except requests.exceptions.RequestException:
